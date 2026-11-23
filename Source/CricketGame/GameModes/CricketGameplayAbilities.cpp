@@ -244,7 +244,7 @@ UCricketSpecialShotAbility::UCricketSpecialShotAbility()
 
 UCricketFootworkAbility::UCricketFootworkAbility()
 {
-    FootworkType = EFootworkType::FrontFoot;
+    FootworkType = EFootworkType::ForwardPress;
     MovementSpeed = 3.0f;
 }
 

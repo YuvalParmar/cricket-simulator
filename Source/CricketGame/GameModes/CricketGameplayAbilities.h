@@ -5,64 +5,25 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
-#include "Core/CricketDataAssets.h"
+#include "GameplayTags.h"
+#include "AbilitySystemComponent.h"
+#include "AttributeSet.h"
+#include "BallPhysics/CricketBall.h"
+#include "GameModes/CricketDataAssets.h"
+#include "GameModes/CricketEnums.h"
 #include "CricketGameplayAbilities.generated.h"
 
+// Forward declarations - break circular dependencies
 class ACricketBattingPawn;
 class ACricketBowlingPawn;
 class ACricketFieldingPawn;
-class ACricketBall;
 class UPitchActor;
+class UCricketFieldingComponent;
 
 // ============================================================================
 // CRICKET ENUMS (shared across gameplay)
 // ============================================================================
 
-UENUM(BlueprintType)
-enum class EShotOutcome : uint8
-{
-    None            UMETA(DisplayName = "None"),
-    Missed          UMETA(DisplayName = "Missed"),
-    Edged           UMETA(DisplayName = "Edged"),
-    ThickEdge       UMETA(DisplayName = "Thick Edge"),
-    TopEdge         UMETA(DisplayName = "Top Edge"),
-    InsideEdge      UMETA(DisplayName = "Inside Edge"),
-    LeadingEdge     UMETA(DisplayName = "Leading Edge"),
-    PlayAndMiss     UMETA(DisplayName = "Play and Miss"),
-    InsideEdgePad   UMETA(DisplayName = "Inside Edge Pad"),
-    Pad             UMETA(DisplayName = "Pad"),
-    Gloved          UMETA(DisplayName = "Gloved"),
-    CaughtBehind    UMETA(DisplayName = "Caught Behind"),
-    Caught          UMETA(DisplayName = "Caught"),
-    Bowled          UMETA(DisplayName = "Bowled"),
-    LBW             UMETA(DisplayName = "LBW"),
-    Stumped         UMETA(DisplayName = "Stumped"),
-    RunOut          UMETA(DisplayName = "Run Out"),
-    HitWicket       UMETA(DisplayName = "Hit Wicket"),
-    Single          UMETA(DisplayName = "Single"),
-    Two             UMETA(DisplayName = "Two"),
-    Three           UMETA(DisplayName = "Three"),
-    Four            UMETA(DisplayName = "Four"),
-    Six             UMETA(DisplayName = "Six"),
-    Byes            UMETA(DisplayName = "Byes"),
-    LegByes         UMETA(DisplayName = "Leg Byes"),
-    Wides           UMETA(DisplayName = "Wides"),
-    NoBall          UMETA(DisplayName = "No Ball"),
-    DeadBall        UMETA(DisplayName = "Dead Ball"),
-    Overthrow       UMETA(DisplayName = "Overthrow"),
-    FreeHit         UMETA(DisplayName = "Free Hit")
-};
-
-UENUM(BlueprintType)
-enum class EFootworkType : uint8
-{
-    None            UMETA(DisplayName = "None"),
-    ForwardPress    UMETA(DisplayName = "Forward Press"),
-    BackFoot        UMETA(DisplayName = "Back Foot"),
-    StepOut         UMETA(DisplayName = "Step Out"),
-    ShuffleAcross   UMETA(DisplayName = "Shuffle Across"),
-    OpenStance      UMETA(DisplayName = "Open Stance")
-};
 
 // ============================================================================
 // GAMEPLAY TAGS
@@ -197,7 +158,7 @@ struct FCricketFieldingInputState
 };
 
 UCLASS(Abstract, Blueprintable)
-class CRICKETSIMULATOR_API UCricketGameplayAbility : public UGameplayAbility
+class CRICKETGAME_API UCricketGameplayAbility : public UGameplayAbility
 {
     GENERATED_BODY()
 
@@ -246,7 +207,7 @@ protected:
 
 // Base class for all shot abilities
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketShotAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketShotAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -341,7 +302,7 @@ protected:
 
 // Specific shot abilities
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketDefensiveShotAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketDefensiveShotAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -349,7 +310,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketDriveAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketDriveAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -357,7 +318,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketHorizontalBatAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketHorizontalBatAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -365,7 +326,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketSweepAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketSweepAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -373,7 +334,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketLoftedShotAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketLoftedShotAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -381,7 +342,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketSpecialShotAbility : public UCricketShotAbility
+class CRICKETGAME_API UCricketSpecialShotAbility : public UCricketShotAbility
 {
     GENERATED_BODY()
 public:
@@ -390,7 +351,7 @@ public:
 
 // Footwork ability (can be used independently or as part of shot)
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketFootworkAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketFootworkAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -415,7 +376,7 @@ public:
 // ============================================================================
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketBowlingAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketBowlingAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -509,7 +470,7 @@ protected:
 
 // Specific delivery abilities
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketPaceDeliveryAbility : public UCricketBowlingAbility
+class CRICKETGAME_API UCricketPaceDeliveryAbility : public UCricketBowlingAbility
 {
     GENERATED_BODY()
 public:
@@ -517,7 +478,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketSwingDeliveryAbility : public UCricketBowlingAbility
+class CRICKETGAME_API UCricketSwingDeliveryAbility : public UCricketBowlingAbility
 {
     GENERATED_BODY()
 public:
@@ -525,7 +486,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketSpinDeliveryAbility : public UCricketBowlingAbility
+class CRICKETGAME_API UCricketSpinDeliveryAbility : public UCricketBowlingAbility
 {
     GENERATED_BODY()
 public:
@@ -533,7 +494,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketVariationDeliveryAbility : public UCricketBowlingAbility
+class CRICKETGAME_API UCricketVariationDeliveryAbility : public UCricketBowlingAbility
 {
     GENERATED_BODY()
 public:
@@ -542,7 +503,7 @@ public:
 
 // Run-up rhythm ability
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketRunupRhythmAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketRunupRhythmAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -580,7 +541,7 @@ protected:
 // ============================================================================
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketFieldingAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketFieldingAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -675,7 +636,7 @@ protected:
 
 // Specific fielding abilities
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketInterceptionAbility : public UCricketFieldingAbility
+class CRICKETGAME_API UCricketInterceptionAbility : public UCricketFieldingAbility
 {
     GENERATED_BODY()
 public:
@@ -683,7 +644,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketDiveAbility : public UCricketFieldingAbility
+class CRICKETGAME_API UCricketDiveAbility : public UCricketFieldingAbility
 {
     GENERATED_BODY()
 public:
@@ -691,7 +652,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketThrowAbility : public UCricketFieldingAbility
+class CRICKETGAME_API UCricketThrowAbility : public UCricketFieldingAbility
 {
     GENERATED_BODY()
 public:
@@ -699,7 +660,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketCatchAbility : public UCricketFieldingAbility
+class CRICKETGAME_API UCricketCatchAbility : public UCricketFieldingAbility
 {
     GENERATED_BODY()
 public:
@@ -707,7 +668,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketRunOutAbility : public UCricketFieldingAbility
+class CRICKETGAME_API UCricketRunOutAbility : public UCricketFieldingAbility
 {
     GENERATED_BODY()
 public:
@@ -716,7 +677,7 @@ public:
 
 // Wicketkeeping specific abilities
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketWicketkeepingAbility : public UCricketGameplayAbility
+class CRICKETGAME_API UCricketWicketkeepingAbility : public UCricketGameplayAbility
 {
     GENERATED_BODY()
 
@@ -758,7 +719,7 @@ public:
 
 // Stamina cost effect
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketStaminaCostEffect : public UGameplayEffect
+class CRICKETGAME_API UCricketStaminaCostEffect : public UGameplayEffect
 {
     GENERATED_BODY()
 
@@ -774,7 +735,7 @@ public:
 
 // Pressure effect (affects timing windows)
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketPressureEffect : public UGameplayEffect
+class CRICKETGAME_API UCricketPressureEffect : public UGameplayEffect
 {
     GENERATED_BODY()
 
@@ -793,7 +754,7 @@ public:
 
 // Form/Confidence effect
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketFormEffect : public UGameplayEffect
+class CRICKETGAME_API UCricketFormEffect : public UGameplayEffect
 {
     GENERATED_BODY()
 
@@ -815,7 +776,7 @@ public:
 
 // Fatigue effect
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketFatigueEffect : public UGameplayEffect
+class CRICKETGAME_API UCricketFatigueEffect : public UGameplayEffect
 {
     GENERATED_BODY()
 
@@ -877,7 +838,7 @@ enum class EFieldingAttribute : uint8
 // ============================================================================
 
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class CRICKETSIMULATOR_API UCricketAbilitySystemComponent : public UAbilitySystemComponent
+class CRICKETGAME_API UCricketAbilitySystemComponent : public UAbilitySystemComponent
 {
     GENERATED_BODY()
 
@@ -961,7 +922,7 @@ protected:
 // ============================================================================
 
 UCLASS(Blueprintable)
-class CRICKETSIMULATOR_API UCricketAttributeSet : public UAttributeSet
+class CRICKETGAME_API UCricketAttributeSet : public UAttributeSet
 {
     GENERATED_BODY()
 
