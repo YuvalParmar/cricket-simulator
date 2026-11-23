@@ -1,0 +1,32 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0",
+    "FriendlyName": "Phone Bat Plugin",
+    "Description": "Phone companion integration for cricket simulator - networking, sensor fusion, calibration, motion interpretation",
+    "Category": "Gameplay",
+    "CreatedBy": "Cricket Simulator Team",
+    "CreatedByURL": "",
+    "DocsURL": "",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": false,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Plugins": [
+        {
+            "Name": "GameplayAbilities",
+            "Enabled": true
+        }
+    ],
+    "Modules": [
+        {
+            "Name": "PhoneBatPlugin",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "WhitelistPlatforms": ["Win64", "Mac", "Linux", "Android", "IOS"],
+            "BlacklistPlatforms": []
+        }
+    ]
+}
