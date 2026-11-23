@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.8",
+	"Category": "Sports",
+	"Description": "Broadcast-quality cricket simulator with phone-as-bat AR support",
+	"Modules": [
+		{
+			"Name": "CricketSimulator",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"CricketPhysics",
+				"PhoneBatLink"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "CricketPhysics",
+			"Enabled": true
+		},
+		{
+			"Name": "PhoneBatLink",
+			"Enabled": true
+		}
+	],
+	"TargetPlatforms": [
+		"Windows"
+	]
+}

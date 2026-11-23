@@ -1,0 +1,13 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/experimental:deterministic
+/DEF
+/NAME:"UnrealEditor-CricketPhysics.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:/Users/yuval/local/Desktop/repos/cricket/Intermediate/Build/Win64/x64/CricketSimulatorEditor/Development/UnrealEd/SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.InclOrderUnreal5_6.h.obj"
+"C:/Users/yuval/local/Desktop/repos/cricket/Plugins/CricketPhysics/Intermediate/Build/Win64/x64/UnrealEditor/Development/CricketPhysics/Module.CricketPhysics.cpp.obj"
+"C:/Users/yuval/local/Desktop/repos/cricket/Plugins/CricketPhysics/Intermediate/Build/Win64/x64/UnrealEditor/Development/CricketPhysics/CricketPhysicsModule.cpp.obj"
+/OUT:"C:/Users/yuval/local/Desktop/repos/cricket/Plugins/CricketPhysics/Intermediate/Build/Win64/x64/UnrealEditor/Development/CricketPhysics/UnrealEditor-CricketPhysics.lib"

@@ -1,0 +1,2 @@
+@echo off
+"C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat" CricketSimulatorEditor Win64 Development -Project="C:/Users/yuval/local/Desktop/repos/cricket/CricketSimulator.uproject" -WaitMutex

@@ -1,0 +1,9 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.CricketPhysics.cpp.obj": [
+			"PerModuleInline.gen.cpp.obj",
+			"CricketPhysicsModule.cpp.obj"
+		]
+	}
+}

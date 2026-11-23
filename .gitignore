@@ -1,0 +1,53 @@
+# Unreal Engine
+/Build
+/Intermediate
+/DerivedDataCache
+/.vs
+*.sln
+*.slnx
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.VC.db
+*.VC.VC.opendb
+*.opensdf
+*.sdf
+*.suo
+*.user
+*.opensdf
+*.sdf
+*.suo
+*.user
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+Saved/Logs
+
+# Binaries
+/Binaries
+*.dll
+*.exe
+*.pdb
+
+# Staging
+/Staging
+
+# Package
+/Package
+
+# User specific
+*.user
+*.suo
+
+# Debug
+*_BuiltData.uasset

@@ -1,0 +1,9 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.PhoneBatLink.cpp.obj": [
+			"PerModuleInline.gen.cpp.obj",
+			"PhoneBatLinkModule.cpp.obj"
+		]
+	}
+}

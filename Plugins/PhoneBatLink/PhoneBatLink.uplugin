@@ -1,0 +1,25 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "Phone Bat Link",
+  "Description": "UDP/Bluetooth communication plugin for phone-as-bat AR integration with sensor fusion and swing detection",
+  "Category": "Networking",
+  "CreatedBy": "Cricket Simulator Team",
+  "CanBeContainedByContentPak": true,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Modules": [
+    {
+      "Name": "PhoneBatLink",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "Dependencies": [
+        {
+          "Name": "EnhancedInput",
+          "Type": "Runtime"
+        }
+      ]
+    }
+  ]
+}
