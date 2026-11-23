@@ -120,6 +120,16 @@ class SensorManager: ObservableObject {
         let batSpeed: Float
         let predictedContactTime: TimeInterval?
         let confidence: Float
+
+        // ========================================================================
+        // Latency Instrumentation Timestamps (Phone side)
+        // ========================================================================
+        // T0: Phone sensor read time (microseconds since epoch)
+        let phoneSensorReadTimeUs: UInt64
+        // T1: Phone sensor fusion complete time (microseconds since epoch)
+        let phoneFusionCompleteTimeUs: UInt64
+        // T2: Phone serialization/send time (microseconds since epoch)
+        let phoneSendTimeUs: UInt64
     }
 
     // MARK: - Initialization
@@ -172,6 +182,7 @@ class SensorManager: ObservableObject {
 
     /// Get current sensor frame for network transmission
     func getCurrentFrame() -> SensorFrame {
+        let nowUs = UInt64(Date().timeIntervalSince1970 * 1_000_000)
         let predictedContact = swingDetector.predictContactTime()
         let confidence = swingDetector.getConfidence()
 
@@ -184,7 +195,12 @@ class SensorManager: ObservableObject {
             swingPhase: swingPhase,
             batSpeed: batSpeed,
             predictedContactTime: predictedContact,
-            confidence: confidence
+            confidence: confidence,
+
+            // Latency instrumentation
+            phoneSensorReadTimeUs: nowUs,
+            phoneFusionCompleteTimeUs: nowUs,
+            phoneSendTimeUs: nowUs
         )
     }
 
@@ -192,6 +208,7 @@ class SensorManager: ObservableObject {
     func getSensorHistory() -> [SensorFrame] {
         var frames: [SensorFrame] = []
         let count = min(timestampBuffer.count, bufferSize)
+        let nowUs = UInt64(Date().timeIntervalSince1970 * 1_000_000)
 
         for i in 0..<count {
             let idx = timestampBuffer.count - 1 - i
@@ -206,7 +223,10 @@ class SensorManager: ObservableObject {
                 swingPhase: swingPhase, // Simplified - would need history
                 batSpeed: batSpeed,
                 predictedContactTime: nil,
-                confidence: 1.0
+                confidence: 1.0,
+                phoneSensorReadTimeUs: nowUs,
+                phoneFusionCompleteTimeUs: nowUs,
+                phoneSendTimeUs: nowUs
             )
             frames.append(frame)
         }

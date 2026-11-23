@@ -1,0 +1,43 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0",
+    "FriendlyName": "Cricket Motion Tracking",
+    "Description": "Phone-as-bat AR motion tracking, sensor fusion, and bat tracking for cricket simulation",
+    "Category": "Gameplay",
+    "CreatedBy": "Cricket Simulator Team",
+    "CreatedByURL": "",
+    "DocsURL": "",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": false,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Plugins": [
+        {
+            "Name": "EnhancedInput",
+            "Enabled": true
+        }
+    ],
+    "Modules": [
+        {
+            "Name": "CricketMotionTracking",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "AdditionalDependencies": [
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "Networking",
+                "Sockets",
+                "Json",
+                "JsonUtilities",
+                "InputCore",
+                "HeadMountedDisplay",
+                "AnimationCore",
+                "AnimGraphRuntime"
+            ]
+        }
+    ]
+}

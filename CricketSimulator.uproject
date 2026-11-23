@@ -9,18 +9,27 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"CricketPhysics",
-				"PhoneBatLink"
+				"CricketGame",
+				"CricketMotionTracking",
+				"GameplayAbilities",
+				"GameplayTags",
+				"GameplayTasks",
+				"EnhancedInput"
 			]
+		},
+		{
+			"Name": "CricketGame",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "CricketPhysics",
+			"Name": "CricketMotionTracking",
 			"Enabled": true
 		},
 		{
-			"Name": "PhoneBatLink",
+			"Name": "GameplayAbilities",
 			"Enabled": true
 		}
 	],

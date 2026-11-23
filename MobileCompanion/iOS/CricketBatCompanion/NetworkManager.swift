@@ -104,6 +104,16 @@ struct SensorFramePayload: Codable {
     let gravity: SIMD3<Float>
     let linearAcceleration: SIMD3<Float>
     let confidence: Float
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (T0-T1 from phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    let phoneSensorReadTimeUs: UInt64
+    // T1: Phone sensor fusion complete time
+    let phoneFusionCompleteTimeUs: UInt64
+    // T2: Phone serialization/send time
+    let phoneSendTimeUs: UInt64
 }
 
 struct SwingPhasePayload: Codable {
@@ -115,6 +125,16 @@ struct SwingPhasePayload: Codable {
     let batVelocity: SIMD3<Float>
     let batAngularVelocity: SIMD3<Float>
     let confidence: Float
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    let phoneSensorReadTimeUs: UInt64
+    // T1: Phone sensor fusion complete time
+    let phoneFusionCompleteTimeUs: UInt64
+    // T2: Phone serialization/send time
+    let phoneSendTimeUs: UInt64
 }
 
 struct ContactPredictPayload: Codable {
@@ -124,6 +144,16 @@ struct ContactPredictPayload: Codable {
     let predictedBatVelocity: SIMD3<Float>
     let predictedBatOrientation: SIMD4<Float>
     let confidence: Float
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    let phoneSensorReadTimeUs: UInt64
+    // T1: Phone sensor fusion complete time
+    let phoneFusionCompleteTimeUs: UInt64
+    // T2: Phone serialization/send time
+    let phoneSendTimeUs: UInt64
 }
 
 struct SwingResultPayload: Codable {
@@ -137,6 +167,16 @@ struct SwingResultPayload: Codable {
     let batOrientationAtContact: SIMD4<Float>
     let wristRotationAtContact: Float
     let swingFrames: [SensorFramePayload]
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    let phoneSensorReadTimeUs: UInt64
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    let phoneFusionCompleteTimeUs: UInt64
+    // T2: Phone serialization/send time (microseconds since epoch)
+    let phoneSendTimeUs: UInt64
 }
 
 struct CalibrationPayload: Codable {
@@ -162,6 +202,16 @@ struct ClockSyncPayload: Codable {
     var clientReceiveTime: UInt64 = 0
     var roundTripTime: Int32 = 0
     var clockOffset: Int32 = 0
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (for cross-reference)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    var phoneSensorReadTimeUs: UInt64 = 0
+    // T1: Phone sensor fusion complete time
+    var phoneFusionCompleteTimeUs: UInt64 = 0
+    // T2: Phone serialization/send time
+    var phoneSendTimeUs: UInt64 = 0
 }
 
 struct ConfigPayload: Codable {
@@ -315,7 +365,22 @@ class NetworkManager: ObservableObject {
     }
 
     func sendSensorFrame(_ frame: SensorFramePayload) {
-        sendPacket(type: .sensorFrame, payload: frame)
+        // Update T2 (send time) just before transmission
+        var updatedFrame = frame
+        updatedFrame = SensorFramePayload(
+            timestamp: frame.timestamp,
+            accelerometer: frame.accelerometer,
+            gyroscope: frame.gyroscope,
+            magnetometer: frame.magnetometer,
+            orientation: frame.orientation,
+            gravity: frame.gravity,
+            linearAcceleration: frame.linearAcceleration,
+            confidence: frame.confidence,
+            phoneSensorReadTimeUs: frame.phoneSensorReadTimeUs,
+            phoneFusionCompleteTimeUs: frame.phoneFusionCompleteTimeUs,
+            phoneSendTimeUs: currentTimestampUs() // T2: actual send time
+        )
+        sendPacket(type: .sensorFrame, payload: updatedFrame)
     }
 
     func sendSensorBatch(_ frames: [SensorFramePayload]) {
@@ -327,15 +392,58 @@ class NetworkManager: ObservableObject {
     }
 
     func sendSwingPhase(_ phase: SwingPhasePayload) {
-        sendPacket(type: .swingPhaseUpdate, payload: phase)
+        var updatedPhase = phase
+        updatedPhase = SwingPhasePayload(
+            timestamp: phase.timestamp,
+            currentPhase: phase.currentPhase,
+            phaseProgress: phase.phaseProgress,
+            batSpeed: phase.batSpeed,
+            maxBatSpeed: phase.maxBatSpeed,
+            batVelocity: phase.batVelocity,
+            batAngularVelocity: phase.batAngularVelocity,
+            confidence: phase.confidence,
+            phoneSensorReadTimeUs: phase.phoneSensorReadTimeUs,
+            phoneFusionCompleteTimeUs: phase.phoneFusionCompleteTimeUs,
+            phoneSendTimeUs: currentTimestampUs() // T2: actual send time
+        )
+        sendPacket(type: .swingPhaseUpdate, payload: updatedPhase)
     }
 
     func sendContactPrediction(_ prediction: ContactPredictPayload) {
-        sendPacket(type: .swingContactPredict, payload: prediction)
+        var updatedPrediction = prediction
+        updatedPrediction = ContactPredictPayload(
+            timestamp: prediction.timestamp,
+            predictedContactTime: prediction.predictedContactTime,
+            predictedContactPoint: prediction.predictedContactPoint,
+            predictedBatVelocity: prediction.predictedBatVelocity,
+            predictedBatOrientation: prediction.predictedBatOrientation,
+            confidence: prediction.confidence,
+            phoneSensorReadTimeUs: prediction.phoneSensorReadTimeUs,
+            phoneFusionCompleteTimeUs: prediction.phoneFusionCompleteTimeUs,
+            phoneSendTimeUs: currentTimestampUs() // T2: actual send time
+        )
+        sendPacket(type: .swingContactPredict, payload: updatedPrediction)
     }
 
     func sendSwingResult(_ result: SwingResultPayload) {
-        sendPacket(type: .swingResult, payload: result)
+        // Update T2 (send time) just before transmission
+        var updatedResult = result
+        updatedResult = SwingResultPayload(
+            contactTimestamp: result.contactTimestamp,
+            shotType: result.shotType,
+            timingQuality: result.timingQuality,
+            powerRating: result.powerRating,
+            controlRating: result.controlRating,
+            contactPoint: result.contactPoint,
+            batVelocityAtContact: result.batVelocityAtContact,
+            batOrientationAtContact: result.batOrientationAtContact,
+            wristRotationAtContact: result.wristRotationAtContact,
+            swingFrames: result.swingFrames,
+            phoneSensorReadTimeUs: result.phoneSensorReadTimeUs,
+            phoneFusionCompleteTimeUs: result.phoneFusionCompleteTimeUs,
+            phoneSendTimeUs: currentTimestampUs() // T2: actual send time
+        )
+        sendPacket(type: .swingResult, payload: updatedResult)
     }
 
     func requestClockSync() {

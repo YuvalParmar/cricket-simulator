@@ -92,7 +92,17 @@ data class SensorFramePayload(
     val orientation: FloatArray, // Quaternion [x, y, z, w]
     val gravity: FloatArray,
     val linearAcceleration: FloatArray,
-    val confidence: Float
+    val confidence: Float,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 @Serializable
@@ -104,7 +114,17 @@ data class SwingPhasePayload(
     val maxBatSpeed: Float,
     val batVelocity: FloatArray,
     val batAngularVelocity: FloatArray,
-    val confidence: Float
+    val confidence: Float,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 @Serializable
@@ -114,7 +134,17 @@ data class ContactPredictPayload(
     val predictedContactPoint: FloatArray,
     val predictedBatVelocity: FloatArray,
     val predictedBatOrientation: FloatArray,
-    val confidence: Float
+    val confidence: Float,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 @Serializable
@@ -128,7 +158,17 @@ data class SwingResultPayload(
     val batVelocityAtContact: FloatArray,
     val batOrientationAtContact: FloatArray,
     val wristRotationAtContact: Float,
-    val swingFrames: List<SensorFramePayload>
+    val swingFrames: List<SensorFramePayload>,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 @Serializable
@@ -156,7 +196,17 @@ data class ClockSyncPayload(
     var serverSendTime: Long = 0,
     var clientReceiveTime: Long = 0,
     var roundTripTime: Int = 0,
-    var clockOffset: Int = 0
+    var clockOffset: Int = 0,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 @Serializable
@@ -326,7 +376,9 @@ class NetworkManager private constructor(
     }
 
     fun sendSensorFrame(frame: SensorFramePayload) {
-        sendPacket(PacketType.SENSOR_FRAME, frame)
+        // Update T2 (send time) just before transmission
+        val updatedFrame = frame.copy(phoneSendTimeUs = currentTimestampUs())
+        sendPacket(PacketType.SENSOR_FRAME, updatedFrame)
     }
 
     fun sendSensorBatch(frames: List<SensorFramePayload>) {
@@ -336,11 +388,13 @@ class NetworkManager private constructor(
     }
 
     fun sendSwingPhase(phase: SwingPhasePayload) {
-        sendPacket(PacketType.SWING_PHASE_UPDATE, phase)
+        val updatedPhase = phase.copy(phoneSendTimeUs = currentTimestampUs())
+        sendPacket(PacketType.SWING_PHASE_UPDATE, updatedPhase)
     }
 
     fun sendContactPrediction(prediction: ContactPredictPayload) {
-        sendPacket(PacketType.SWING_CONTACT_PREDICT, prediction)
+        val updatedPrediction = prediction.copy(phoneSendTimeUs = currentTimestampUs())
+        sendPacket(PacketType.SWING_CONTACT_PREDICT, updatedPrediction)
     }
 
     fun sendSwingResult(result: SwingResultPayload) {

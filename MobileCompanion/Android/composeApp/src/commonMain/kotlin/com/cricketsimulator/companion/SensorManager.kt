@@ -186,19 +186,25 @@ class SensorManager(private val context: Context) {
      * Get current sensor frame for network transmission
      */
     fun getCurrentFrame(): SensorFrame {
+        val nowUs = System.currentTimeMillis() * 1000L // Microseconds
         val predictedContact = swingDetector.predictContactTime()
         val confidence = swingDetector.getConfidence()
 
         return SensorFrame(
-            timestamp = System.currentTimeMillis().toDouble() / 1000.0,
+            timestamp = nowUs.toDouble(),
             orientation = _currentOrientation.value,
             acceleration = _currentAcceleration.value,
             rotationRate = _currentRotationRate.value,
             magneticField = _currentMagneticField.value,
             swingPhase = _swingPhase.value,
             batSpeed = _batSpeed.value,
-            predictedContactTime = predictedContact,
-            confidence = confidence
+            predictedContactTime = predictedContact?.let { it * 1_000_000.0 },
+            confidence = confidence,
+
+            // Latency instrumentation
+            phoneSensorReadTimeUs = nowUs,
+            phoneFusionCompleteTimeUs = nowUs,
+            phoneSendTimeUs = nowUs
         )
     }
 
@@ -540,15 +546,25 @@ data class CalibrationSample(
 )
 
 data class SensorFrame(
-    val timestamp: Double,
+    val timestamp: Double,                    // Microseconds since epoch
     val orientation: Quat,
     val acceleration: Vec3,
     val rotationRate: Vec3,
     val magneticField: Vec3,
     val swingPhase: SwingPhase,
     val batSpeed: Float,
-    val predictedContactTime: Double?,
-    val confidence: Float
+    val predictedContactTime: Double?,        // Microseconds since epoch
+    val confidence: Float,
+
+    // ========================================================================
+    // Latency Instrumentation Timestamps (Phone side)
+    // ========================================================================
+    // T0: Phone sensor read time (microseconds since epoch)
+    val phoneSensorReadTimeUs: Long = 0,
+    // T1: Phone sensor fusion complete time (microseconds since epoch)
+    val phoneFusionCompleteTimeUs: Long = 0,
+    // T2: Phone serialization/send time (microseconds since epoch)
+    val phoneSendTimeUs: Long = 0
 )
 
 // MARK: - Ring Buffer

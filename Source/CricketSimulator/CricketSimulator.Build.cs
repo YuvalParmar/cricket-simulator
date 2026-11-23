@@ -1,10 +1,14 @@
 using UnrealBuildTool;
+using System.IO;
 
 public class CricketSimulator : ModuleRules
 {
     public CricketSimulator(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+        // Add module root to public include paths
+        PublicIncludePaths.Add(Path.Combine(ModuleDirectory));
 
         PublicDependencyModuleNames.AddRange(new string[] {
             "Core",
@@ -20,8 +24,8 @@ public class CricketSimulator : ModuleRules
             "Sockets",
             "Json",
             "JsonUtilities",
-            "CricketPhysics",
-            "PhoneBatLink",
+            "CricketGame",
+            "CricketMotionTracking",
             "HeadMountedDisplay",
             "AnimationCore",
             "AnimGraphRuntime"
